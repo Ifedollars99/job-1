@@ -1,7 +1,7 @@
 <template>
 <main>
   <!-- Date -->
-   <div class="text-center mb-6" >
+   <div class="text-center text-green-600 text-xl mb-6" >
     {{ 
       new Date().toLocaleDateString('en-us', {
         weekday: 'long',
@@ -17,19 +17,20 @@
       Ifedollars...
     </h1>
     <h1 class="text-2xl text-green-500" >
-      MOvies 
+      SHops 
     </h1>
    </div>
+
 
     <!-- Search -->
      <div>
       <SearchField/>
      </div>
 
-      <!-- ShowCase -->
-       <div>
-        <ShowCase />
-       </div>
+     <div>
+      <ShowFor/>
+     </div>
+
 </main>
 
   <router-view class="text-transparent" ></router-view>
@@ -37,8 +38,7 @@
 
 <script setup >
 import SearchField from './components/SearchField.vue';
-import ShowCase from './components/ShowCase.vue';
- 
+import ShowFor from './components/ShowFor.vue';
 
 </script>
 

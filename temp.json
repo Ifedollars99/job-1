@@ -1,0 +1,53 @@
+{
+    "products": [
+      {
+        "id": 1,
+        "name": "Nike Air Max 270",
+        "price": 120,
+        "category": "Shoes",
+        "image": "/images/airmax270.jpg",
+        "description": "Cushioned comfort and sleek style."
+      },
+      {
+        "id": 2,
+        "name": "Nike Air Force 1",
+        "price": 100,
+        "category": "Shoes",
+        "image": "/images/airforce1.jpg",
+        "description": "Classic streetwear staple."
+      },
+      {
+        "id": 3,
+        "name": "Nike Sports Backpack",
+        "price": 55,
+        "category": "Bags",
+        "image": "/images/backpack.jpg",
+        "description": "Spacious and durable design."
+      },
+      {
+        "id": 4,
+        "name": "Nike Gym Sack",
+        "price": 25,
+        "category": "Bags",
+        "image": "/images/gymsack.jpg",
+        "description": "Minimalist gym essential."
+      },
+      {
+        "id": 5,
+        "name": "Nike Dri-FIT T-Shirt",
+        "price": 30,
+        "category": "Clothing",
+        "image": "/images/shirt.jpg",
+        "description": "Moisture-wicking and lightweight."
+      },
+      {
+        "id": 6,
+        "name": "Nike Windrunner Jacket",
+        "price": 80,
+        "category": "Clothing",
+        "image": "/images/jacket.jpg",
+        "description": "Iconic look. Breathable fabric."
+      }
+    ]
+  }
+  

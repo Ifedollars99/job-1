@@ -1,114 +1,195 @@
- <template>
+<template>
+  <div>
   <div class="p-3">
-    You Searched : {{ searchTerm.query }}
-    <div
-      class="bg-white border border-indigo-600/30 rounded-lg shadow-lg flex items-center"
-    >
-      <i class="bi bi-search p-2 font-bold text-indigo-600"></i>
-      <input
-        type="text"
-        placeholder="Search for a movie"
-        class="rounded-r-lg p-2 border-0 outline-0 focus:ring-2 focus:ring-indigo-600 ring-inset w-full"
-        v-model="searchTerm.query"
-        @input="handleSearch"
-      />
-    </div>
-    <div class="bg-white my-2 rounded-lg shadow-lg">
-      <div v-if="searchTerm.results !== null">
-        <div
-          v-for="(movie, index) in searchTerm.results"
-          :key="index"
-          class="flex gap-3 items-start border-b border-gray-200 p-3"
-        >
-          <img
-            v-if="movie.poster_path"
-            :src="`https://image.tmdb.org/t/p/w200${movie.poster_path}`"
-            class="w-10 h-auto rounded shadow"
-          />
-          <div>
-            <button class="font-bold text-indigo-600" @click="getMovie(movie.id)">
-              {{ movie.title }}
-            </button>
-            <p class="text-sm text-gray-700">OVERVIEW: {{ movie.overview }}</p>
-            <p class="text-xs text-gray-500 mt-1">
-              RELEASE DATE: {{ movie.release_date }}
-            </p>
+    <!-- Search bar section -->
+    <div class="flex flex-row gap-4 justify-between items-center bg-gray-300 rounded-lg w-auto md:w-full h-24 p-2">
+      <div><i class="bi bi-incognito text-3xl text-green-600"></i></div>
+
+      <div class="flex flex-row space-x-2 md:space-x-10">
+        <div class="flex flex-col gap-2">
+          You Searched: {{ searchTerm.query }}
+          <div class="bg-white border border-indigo-600/30 rounded-lg shadow-lg flex items-center">
+            <i class="bi bi-search p-2 font-bold text-green-600"></i>
+            <input
+              type="text"
+              placeholder="Search for an item"
+              class="rounded-r-lg px-10 py-1 md:py-2 border-0 outline-0 focus:ring-2 focus:ring-indigo-600 ring-inset w-full"
+              v-model="searchTerm.query"
+              @input="handleSearch"
+            />
           </div>
+        </div>
+
+        <!-- Cart icon -->
+        <div class="flex flex-col">
+          <h1 class="animate-bounce text-green-600 text-lg hover:text-green-400">Cart</h1>
+          <i
+            @click="viewCart"
+            class="bi bi-backpack4 text-green-600 text-3xl animate-bounce hover:text-green-400 cursor-pointer"
+          ></i>
         </div>
       </div>
     </div>
-
-     <!-- Display selected movie details -->
-    <div v-if="selectedMovie.title" class="mt-6 p-4 bg-white border border-gray-300 rounded-lg shadow-lg">
-      <h2 class="font-bold text-xl text-indigo-600">{{ selectedMovie.title }}</h2>
-      <img
-        v-if="selectedMovie.poster_path"
-        :src="`https://image.tmdb.org/t/p/w500${selectedMovie.poster_path}`"
-        alt="Movie Poster"
-        class="mt-4 w-40 h-auto rounded"
-      />
-      <p class="mt-4 text-sm text-gray-700">OVERVIEW: {{ selectedMovie.overview }}</p>
-      <p class="text-xs text-gray-500 mt-1">
-        RELEASED DATE: {{ selectedMovie.release_date }}
-      </p>
-    </div>
-    <!-- ending -->
   </div>
+
+  <!-- Search results header -->
+  <div v-if="searchTerm.results" class="flex flex-row justify-start gap-2 mt-4">
+    <h1 class="text-2xl text-gray-400">Your Search</h1>
+    <h1 class="text-2xl text-green-500">results...</h1>
+  </div>
+
+  <!-- Search results list -->
+  <div v-if="searchTerm.results?.length" class="mt-6 space-y-4">
+    <div
+      v-for="product in searchTerm.results"
+      :key="product.id"
+      class="border rounded-xl p-4 flex gap-4 shadow hover:shadow-lg transition"
+    >
+      <img :src="product.image" alt="product" class="w-24 h-24 object-cover rounded-md" />
+      <div>
+        <button @click="addProduct(product)" class="text-lg font-semibold text-green-700">
+          {{ product.name }}
+        </button>
+        <p class="text-sm text-gray-500">{{ product.description }}</p>
+        <p class="mt-1 text-base font-bold">${{ product.price }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Selected product display -->
+  <div v-if="selectedProduct" class="mt-6 border p-4 rounded-xl shadow-md">
+    <h3 class="text-xl font-bold text-green-500 mb-2">Selected Product</h3>
+    <img :src="selectedProduct.image" alt="selected" class="w-32 h-32 object-cover rounded-md mb-2" />
+    <h4 class="text-lg font-semibold">{{ selectedProduct.name }}</h4>
+    <p class="text-sm text-gray-500">{{ selectedProduct.description }}</p>
+    <p class="text-base font-bold mt-1">${{ selectedProduct.price }}</p>
+    <button @click="addCart" class="text-white text-sm bg-green-700 p-2 rounded-xl mt-2">
+      Add to Cart
+    </button>
+  </div>
+
+  <!-- Cart view -->
+  <div v-if="showCart" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-6">
+    <div v-for="(cartItem, index) in cartProduct" :key="index" class="border-2 border-gray-300 shadow-lg rounded-lg p-4">
+      <img :src="cartItem.image" alt="cart item" class="w-32 h-32 object-cover rounded-md mb-2" />
+      <h4 class="text-lg font-semibold">{{ cartItem.name }}</h4>
+      <p class="text-base font-bold mt-1">${{ cartItem.price }}</p>
+
+      <div class="flex items-center gap-4 mt-2">
+        <button v-if="cartItem.quantity > 1" @click="decrease(index)">-</button>
+        <i v-else @click="removeItem(index)" class="bi bi-trash-fill text-red-500 text-xl cursor-pointer"></i>
+        <span class="text-xl font-bold">{{ cartItem.quantity }}</span>
+        <button @click="increase(index)">+</button>
+      </div>
+    </div>
+
+    <!-- Cart summary -->
+    <div v-if="cartProduct.length" class="mt-10 col-span-full">
+      <h1 class="text-black text-4xl font-bold">Summary</h1>
+      <h1 class="text-black text-lg">SubTotal: ${{ subtotal.toFixed(2) }}</h1>
+      <h1 class="text-black text-lg">Estimated Delivery & Handling: $250</h1>
+      <h1 class="text-black text-lg">Total = ${{ (subtotal + 250).toFixed(2) }}</h1>
+
+      <div class="flex gap-4 mt-4">
+        <button class="bg-green-700 text-white py-2 px-6 rounded-xl hover:opacity-90">Checkout</button>
+        <button @click="reloadPage" class="bg-red-600 text-white py-2 px-4 rounded-xl hover:opacity-90">Reset</button>
+      </div>
+    </div>
+  </div>
+    <ShowFor @update-cart="handleAddToCart" />
+  </div>
+  
 </template>
 
 <script setup>
-import { reactive } from "vue";
+import { reactive, ref, computed } from 'vue';
+import ShowFor from './ShowFor.vue'; // Adjust path as needed
+
+
+const reloadPage = () => window.location.reload();
+
+const showCart = ref(false);
+const selectedProduct = ref(null);
+const cartProduct = ref([]);
+
+const subtotal = computed(() =>
+  cartProduct.value.reduce((total, item) => total + item.price * item.quantity, 0)
+);
 
 const searchTerm = reactive({
-  query: "",
+  query: '',
   timeout: null,
   results: null,
-});
-
-const selectedMovie = reactive({
-  title: "",
-  overview: "",
-  release_date: "",
-  poster_path: "",
 });
 
 const handleSearch = () => {
   clearTimeout(searchTerm.timeout);
   searchTerm.timeout = setTimeout(async () => {
-    if (searchTerm.query !== "") {
-      const res = await fetch(
-        `https://api.themoviedb.org/3/search/movie?api_key=${`2c2d1c5fa04533775bfee1e0491429f2`}&query=${
-          searchTerm.query
-        }`
-      );
-      const data = await res.json();
-      searchTerm.results = data.results;
-   } else {
+    if (searchTerm.query.trim()) {
+      try {
+        const res = await fetch(
+          `http://localhost:5000/products?q=${encodeURIComponent(searchTerm.query)}`
+        );
+        const data = await res.json();
+        searchTerm.results = data;
+      } catch (err) {
+        console.error('API Fetch Error:', err);
+        searchTerm.results = [];
+      }
+    } else {
       searchTerm.results = null;
-
-      // 👇 Clear selected movie when input is cleared
-      selectedMovie.title = "";
-      selectedMovie.overview = "";
-      selectedMovie.release_date = "";
-      selectedMovie.poster_path = "";
     }
   }, 500);
 };
 
-const getMovie = async (movieId) => {
-  const res = await fetch(
-    `https://api.themoviedb.org/3/movie/${movieId}?api_key=2c2d1c5fa04533775bfee1e0491429f2`
-  );
-  const data = await res.json();
-  
-  // Update the selectedMovie state with the fetched movie details
-  selectedMovie.title = data.title;  // Changed this line from 'movie.title' to 'selectedMovie.title'
-  selectedMovie.overview = data.overview;  // Changed this line from 'movie.overview' to 'selectedMovie.overview'
-  selectedMovie.release_date = data.release_date;  // Changed this line from 'movie.release_date' to 'selectedMovie.release_date'
-  selectedMovie.poster_path = data.poster_path;  // Changed this line from 'movie.poster_path' to 'selectedMovie.poster_path'
-
-  // Hide search results after selecting a movie
+const addProduct = (product) => {
+  selectedProduct.value = product;
   searchTerm.results = null;
+};
+
+const increase = (index) => {
+  cartProduct.value[index].quantity++;
+};
+
+const decrease = (index) => {
+  if (cartProduct.value[index].quantity > 1) {
+    cartProduct.value[index].quantity--;
+  }
+};
+
+const removeItem = (index) => {
+  cartProduct.value.splice(index, 1);
+};
+
+const viewCart = () => {
+  showCart.value = !showCart.value;
+};
+
+const addCart = () => {
+  if (selectedProduct.value) {
+    const exists = cartProduct.value.find(
+      (item) => item.id === selectedProduct.value.id
+    );
+    if (exists) {
+      exists.quantity++;
+    } else {
+      cartProduct.value.push({ ...selectedProduct.value, quantity: 1 });
+    }
+    selectedProduct.value = null;
+    searchTerm.query = '';
+    searchTerm.results = null;
+    alert('✅ Product added to cart. Click the cart icon to view.');
+  }
+};
+
+const handleAddToCart = (product) => {
+  const existing = cartProduct.value.find(p => p.id === product.id);
+  if (existing) {
+    existing.quantity++;
+  } else {
+    cartProduct.value.push({ ...product, quantity: 1 });
+  }
+  showCart.value = true;
 };
 
 </script>
