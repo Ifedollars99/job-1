@@ -1,7 +1,7 @@
 <template>
 <main>
   <!-- Date -->
-   <div class="text-center text-green-600 text-xl mb-6" >
+   <div class="text-center text-indigo-700 hover:text-blue-700 text-xl mb-6" >
     {{ 
       new Date().toLocaleDateString('en-us', {
         weekday: 'long',
@@ -16,30 +16,24 @@
     <h1 class="text-2xl text-gray-400" >
       Ifedollars...
     </h1>
-    <h1 class="text-2xl text-green-500" >
-      SHops 
+    <h1 class="text-2xl text-indigo-700 hover:text-blue-700" >
+      Auth 
     </h1>
    </div>
 
+   <div>
+    <nav class="flex justify-center space-x-4 p-4 bg-gray-200">
+      <router-link to="/signin" class="text-indigo-700 hover:text-blue-700 hover:underline">Sign In</router-link>
+      <router-link to="/signup" class="text-indigo-700 hover:text-blue-700 hover:underline">Sign Up</router-link>
+    </nav>
 
-    <!-- Search -->
-     <div>
-      <SearchField/>
-     </div>
-
-     <div>
-      <ShowFor/>
-     </div>
+    <router-view />
+  </div>
 
 </main>
-
-  <router-view class="text-transparent" ></router-view>
 </template>
 
 <script setup >
-import SearchField from './components/SearchField.vue';
-import ShowFor from './components/ShowFor.vue';
-
 </script>
 
 <style scoped>

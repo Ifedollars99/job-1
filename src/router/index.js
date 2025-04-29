@@ -1,27 +1,45 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import SignIn from '@/components/SignIn.vue'
+import SignUp from '@/components/SignUp.vue'
+import NextPage from '@/components/NextPage.vue'
+import { supabase } from '@/supabase'
+
 
 const routes = [
   {
-    path: '/',
-    name: 'home',
-    component: HomeView
+    path: '/signin',
+    name: 'SignIn',
+    component: SignIn
   },
   {
-    path: '/about/:slug',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: function () {
-      return import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
-    }
+    path: '/signup',
+    name: 'SignUp',
+    component: SignUp
+  },
+  {
+    path: '/nextpage', // <-- updated path
+    name: 'NextPage',
+    component: NextPage
+  },
+  {
+    path: '/',
+    redirect: '/signin' // Default to SignIn
   }
 ]
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes
+})
+
+router.beforeEach(async (to, from, next) => {
+  const { data: { session } } = await supabase.auth.getSession()
+
+  if (to.path === '/nextpage' && !session) { // <-- protect 'nextpage'
+    next('/signin')
+  } else {
+    next()
+  }
 })
 
 export default router
